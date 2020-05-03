@@ -1,9 +1,9 @@
 # !/bin/bash
 #
 # This script builds each executable in the HISTO-SYSTEM system:
-# - Data consumer
 # - Data producer 1
 # - Data producer 2
+# - Data consumer
 #
 # This script can also clean the system of these files if called with 
 # the command line argument "clean"
@@ -18,31 +18,16 @@ if test "$1" = "clean"
 then
 	# Delete the executable files from bin folders
 	echo Cleaning HISTO-SYSTEM binaries.
-	
-	cd DC
+	cd DP-1
 	make clean
 	
-	cd ../DP-1
-	make clean
-	
-	cd ../DP-2
-	make clean
-	
-	cd ../bin
-	rm -r -f ./*
 	
 else
 	echo Building HISTO-SYSTEM binaries
-	
+	cd DP-1
+	make
 
-	cd DC
-	make 
 	
-	cd ../DP-1
-	make 
-	
-	cd ../DP-2
-	make 
 	
 fi
 echo
