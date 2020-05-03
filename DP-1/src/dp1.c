@@ -23,6 +23,7 @@ typedef struct tagSHAREDBUFFER {
 	char SHM_buffer[SHM_SIZE]; //256 characters
 } SHAREDBUFFER;
 
+// Main
 int main() {
 	// Variables to hold shared memory connection data
 	int shmID = 0;
@@ -77,15 +78,44 @@ int main() {
 	buffer_pointer->writePosition = 0;
 	
 	#ifdef DEBUG
-		printf("Everything is properly initialized.\n");
-		#endif
+	printf("Everything is properly initialized.\n");
+	printf("Launching DP-2 program.\n");
+	#endif
 	
 	
+	// Set up data for forking
+	pid_t	forkReturn;	// the return status from the fork() call - indicates whether 
+						// the resulting process is the PARENT or the CHILD
+	pid_t	procID;
+	pid_t	pProcID;
+	
+	// Fork process, then check to see if it worked
 	
 	
+	// If it failed, exit
+	
+	
+	// If it worked, go on
+	
+	
+	// Determine whether this is the DP-1 (parent) or DP-2 (child)
+	
+	
+	// If DP-1, do that behaviour
+	
+	// If DP-2, do that behaviour
 	
 	
 	
 	
 	return 0;
 }
+
+
+
+
+
+
+
+
+
