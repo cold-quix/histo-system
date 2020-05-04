@@ -21,12 +21,17 @@ then
 	cd DP-1
 	make clean
 	
+	cd ../DP-2
+	make clean
+	
 	
 else
 	echo Building HISTO-SYSTEM binaries
 	cd DP-1
 	make
-
+	
+	cd ../DP-2
+	make
 	
 	
 fi

@@ -7,9 +7,18 @@ DESCRIPTION:
 	is launched by the DP-1 program before launching the DC program.
 */
 
+// Include statements
 #include "../inc/prototypes.h"
+#include "../../common/inc/constants.h"
 
-int main() {
+int main(int argc, const char* argv[]) {
+	#ifdef DEBUG
+	printf("Hello world.  I am being run as a child process from DP-1 forking and exec-ing into DP-2.\n");
+	#endif
+	
+	
+	
+	
 	
 	return 0;
 }

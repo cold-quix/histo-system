@@ -8,20 +8,8 @@ DESCRIPTION:
 */
 
 // Include statements
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <stdlib.h>
 #include "../inc/prototypes.h"
 #include "../../common/inc/constants.h"
-
-
-// Definition of shared memory struct.  Common across all programs.
-typedef struct tagSHAREDBUFFER {
-	// Read and write positions will always loop from 255 back to 0
-	int readPosition;
-	int writePosition;
-	char SHM_buffer[SHM_SIZE]; //256 characters
-} SHAREDBUFFER;
 
 // Main
 int main() {
@@ -84,26 +72,60 @@ int main() {
 	
 	
 	// Set up data for forking
-	pid_t	forkReturn;	// the return status from the fork() call - indicates whether 
-						// the resulting process is the PARENT or the CHILD
-	pid_t	procID;
-	pid_t	pProcID;
+	pid_t	forkReturn;	// Return value from fork().  Indicates whether process is
+						// parent or child.
+	pid_t	childPID;	// PID of DP-2
+	pid_t	parentPID;	// PID of DP-1
+	parentPID = getpid(); // Save current PID
+	
+	// Shared memory ID that will be passed to DP-2 if forking is successful.
+	// This is located here because it must be done before the fork.
+	char* argv[3] = {"Command-line", shmID, NULL};
 	
 	// Fork process, then check to see if it worked
-	
+	forkReturn = fork(); 
 	
 	// If it failed, exit
-	
+	if (forkReturn == FORK_FAILURE) {
+		#ifdef DEBUG
+		printf("Error - fork() call failed.  Exiting.\n");
+		#endif
+		exit(0);
+	} 
 	
 	// If it worked, go on
-	
-	
 	// Determine whether this is the DP-1 (parent) or DP-2 (child)
+	else if (forkReturn == IS_CHILD) {
+		#ifdef DEBUG
+		printf("[CHILD]: DP-2 process started successfully.\n");
+		printf("[CHILD]: DP-2's PID is %ld and my parent's PID is %ld\n", (long)getpid(), (long)parentPID);
+		#endif
+		// If DP-2, do that behaviour
+		// Exec into the DP-2 program to handle it
+		// Pass the shared memory ID to DP-2, and nothing else
+		execvp("DP-2", argv);
+		
+		exit(0);
+	}
+	
+	// In the parent (DP-1), the return value will be the parent's PID, and not 0
+	else if (forkReturn > 0) {
+		#ifdef DEBUG
+		printf("[PARENT]: DP-1 process continuing as normal.\n");
+		printf("[PARENT]: DP-1's PID is %ld .\n", (long)parentPID);
+		sleep(5); // Give the child time to work before the parent exits.
+		#endif
+		// If DP-1, do that behaviour
+		
+		
+		exit(0);
+	}
 	
 	
-	// If DP-1, do that behaviour
 	
-	// If DP-2, do that behaviour
+	
+	
+	
 	
 	
 	
@@ -112,7 +134,10 @@ int main() {
 }
 
 
-
+	// Function that details the DP-1 program loop.
+	void DP1_loop() {
+		
+	}
 
 
 

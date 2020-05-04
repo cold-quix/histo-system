@@ -17,12 +17,26 @@ DESCRIPTION:
 #define SHM_END			255
 #define SHM_SIZE		256
 #define SHM_INVALID		-1
+#define IS_CHILD	 	0
+#define FORK_FAILURE	-1
 
 // Include statments for all programs
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 
 
 
+// Definition of shared memory struct.  Common across all programs.
+typedef struct tagSHAREDBUFFER {
+	// Read and write positions will always loop from 255 back to 0
+	int readPosition;
+	int writePosition;
+	char SHM_buffer[SHM_SIZE]; //256 characters
+} SHAREDBUFFER;
 
 
