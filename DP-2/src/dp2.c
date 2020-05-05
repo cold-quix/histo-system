@@ -15,10 +15,31 @@ int main(int argc, const char* argv[]) {
 	#ifdef DEBUG
 	printf("Hello world.  I am being run as a child process from DP-1 forking and exec-ing into DP-2.\n");
 	#endif
+	// The only command line argument given is the shmID - convert it to an int and use it to reattach
+	
+	// Verify that the shared memory exists and is accessble
+	
+	// If all is well, launch the DC
+	
+	// Go into the DP-2 write loop
 	
 	
 	
+	
+	
+	// Initialize random number seed
+	srandom(time(NULL));
 	
 	
 	return 0;
 }
+
+
+
+
+// Function that details the DP-2 program loop.
+	void DP2_loop() {
+		
+	}
+
+

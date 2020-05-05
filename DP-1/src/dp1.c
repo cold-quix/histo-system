@@ -18,6 +18,8 @@ int main() {
 	key_t shmkey = 0;
 	SHAREDBUFFER* buffer_pointer = NULL;
 	
+	
+	
 	// Get the key to the shared memory block, using the current directory as the seed
 	shmkey = ftok(".", 'M');
 	
@@ -118,6 +120,9 @@ int main() {
 		sleep(5); // Give the child time to work before the parent exits.
 		#endif
 		// If DP-1, do that behaviour
+		// Initialize random number seed
+		srandom(time(NULL));
+		
 		
 		
 		exit(0);

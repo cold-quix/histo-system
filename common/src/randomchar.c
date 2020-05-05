@@ -14,7 +14,7 @@ DESCRIPTION:
 char randomAT() {
 	char randChar;
 	int range = 19;
-	srandom(time(NULL));
+	
 	
 	randChar = random() % range;
 	randChar += 'A'; //Convert int value to ASCII value, starting at A
