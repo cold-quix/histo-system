@@ -80,7 +80,9 @@ int main() {
 	
 	// Shared memory ID that will be passed to DP-2 if forking is successful.
 	// This is located here because it must be done before the fork.
-	char* argv[3] = {"Command-line", shmID, NULL};
+	char shmIDString[SHM_SIZE]; // Size doesn't matter; just reducing magic numbers
+	sprintf(shmIDString, "%d", shmID); // Convert to string
+	char* argv[3] = {"Command-line", shmIDString, NULL};
 	
 	// Fork process, then check to see if it worked
 	forkReturn = fork(); 
@@ -103,7 +105,7 @@ int main() {
 		// If DP-2, do that behaviour
 		// Exec into the DP-2 program to handle it
 		// Pass the shared memory ID to DP-2, and nothing else
-		execvp("DP-2", argv);
+		execv("./DP-2", argv);
 		
 		exit(0);
 	}
