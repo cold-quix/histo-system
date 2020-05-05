@@ -9,7 +9,7 @@
 # =======================================================
 #                     Dependencies
 # =======================================================
-./obj/DP-1.o : ./src/dp1.c ./inc/prototypes.h
+./obj/DP-1.o : ./src/dp1.c ./inc/prototypes.h ../common/inc/prototypes.h ../common/inc/constants.h ../common/inc/semaphores.h
 	cc -c ./src/dp1.c -o ./obj/DP-1.o
 
 #
