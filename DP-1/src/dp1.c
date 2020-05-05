@@ -8,17 +8,22 @@ DESCRIPTION:
 */
 
 // Include statements
+#include <sys/sem.h>
 #include "../inc/prototypes.h"
 #include "../../common/inc/constants.h"
+#include "../../common/inc/semaphores.h"
 
 // Main
 int main() {
+	/*
+	=================
+	  SHARED MEMORY
+	=================
+	*/
 	// Variables to hold shared memory connection data
 	int shmID = 0;
 	key_t shmkey = 0;
 	SHAREDBUFFER* buffer_pointer = NULL;
-	
-	
 	
 	// Get the key to the shared memory block, using the current directory as the seed
 	shmkey = ftok(".", 'M');
@@ -26,9 +31,9 @@ int main() {
 	// If the key can't be allocated, then exit (the scope of solving that is beyond this system)
 	if (shmkey == SHM_INVALID) {
 		#ifdef DEBUG
-		printf("DP-1 shared memory key invalid.  Exiting with return code 1.\n");
+		printf("DP-1 shared memory key invalid.  Exiting.\n");
 		#endif
-		return 1;
+		exit(0);
 	}
 	
 	// If the key is valid, then use it to connect
@@ -43,9 +48,9 @@ int main() {
 		// If the shared memory can't be allocated, then exit (the scope of solving that is beyond this system)
 		if (shmID == SHM_INVALID) {
 			#ifdef DEBUG
-			printf("DP-1 shared memory ID invalid - shared memory cannot be allocated.  Exiting with return code 2.\n");
+			printf("DP-1 shared memory ID invalid - shared memory cannot be allocated.  Exiting.\n");
 			#endif
-			return 2;
+			exit(0);
 		}
 	}
 	
@@ -55,9 +60,9 @@ int main() {
 	// If the buffer is NULL, we couldn't attach to the memory properly.
 	if (buffer_pointer == NULL) {
 		#ifdef DEBUG
-		printf("DP-1 could not attach to shared memory.  Exiting with return code 3.\n");
+		printf("DP-1 could not attach to shared memory.  Exiting.\n");
 		#endif
-		return 3;
+		exit(0);
 	}
 	
 	// Initialize array to 0s and read/write indices to starting locations, just to be safe
@@ -67,13 +72,46 @@ int main() {
 	buffer_pointer->readPosition = 0;
 	buffer_pointer->writePosition = 0;
 	
+	/*
+	==============
+	  SEMAPHORES
+	==============
+	*/
+	// Set up semaphore access
+	int semID;
+	semID = semget (IPC_PRIVATE, 1, IPC_CREAT | 0666);
+	
+	// Check if semaphore was allocated correctly.
+	if (semID == SEMAPHORE_FAILURE) {
+		#ifdef DEBUG
+		printf("[PARENT]: DP-1 could not allocate semaphore.  Exiting.");
+		#endif
+		exit(0);
+	}
+	
+	#ifdef DEBUG
+	printf("[PARENT]: DP-1's semaphore ID is: %d\n", semID);
+	printf("[PARENT]: DP-1 will initialize semaphore to known value");
+	#endif
+	if (semctl(semID, 0, SETALL, init_values) == SEMAPHORE_FAILURE) {
+		#ifdef DEBUG
+		printf("[PARENT]: DP-1 could not initialize semaphore.  Exiting.");
+		#endif
+		exit(0);
+	}
+	
+	/*
+	==============
+	     FORK
+	==============
+	*/
+	// If the program made it here, the semaphore must be allocated and initialized.
+	// Thus, we can fork.
 	#ifdef DEBUG
 	printf("Everything is properly initialized.\n");
 	printf("Launching DP-2 program.\n");
 	#endif
-	
-	
-	// Set up data for forking
+	// Set up data for forking.
 	pid_t	forkReturn;	// Return value from fork().  Indicates whether process is
 						// parent or child.
 	pid_t	childPID;	// PID of DP-2
@@ -112,21 +150,20 @@ int main() {
 		exit(0);
 	}
 	
+	// The program will only make it here if it is the parent - no need for an else-if block
 	// In the parent (DP-1), the return value will be the parent's PID, and not 0
-	else if (forkReturn > 0) {
-		#ifdef DEBUG
-		printf("[PARENT]: DP-1 process continuing as normal.\n");
-		printf("[PARENT]: DP-1's PID is %ld .\n", (long)parentPID);
-		sleep(5); // Give the child time to work before the parent exits.
-		#endif
-		// If DP-1, do that behaviour
-		// Initialize random number seed
-		srandom(time(NULL));
-		
-		
-		
-		exit(0);
-	}
+	#ifdef DEBUG
+	printf("[PARENT]: DP-1 process continuing as normal.\n");
+	printf("[PARENT]: DP-1's PID is %ld .\n", (long)parentPID);
+	#endif
+	
+	// Initialize random number seed
+	srandom(time(NULL));
+	
+	
+	
+	exit(0);
+	
 	
 	
 	
@@ -141,7 +178,7 @@ int main() {
 }
 
 
-	// Function that details the DP-1 program loop.
+	// Function that details the DP-1 write loop.
 	void DP1_loop() {
 		
 	}

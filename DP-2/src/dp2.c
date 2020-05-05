@@ -8,8 +8,10 @@ DESCRIPTION:
 */
 
 // Include statements
+#include <sys/sem.h>
 #include "../inc/prototypes.h"
 #include "../../common/inc/constants.h"
+#include "../../common/inc/semaphores.h"
 
 int main(int argc, const char* argv[]) {
 	#ifdef DEBUG
@@ -21,14 +23,16 @@ int main(int argc, const char* argv[]) {
 	
 	// If all is well, launch the DC
 	
+	// Initialize random number seed
+	srandom(time(NULL));
+	
 	// Go into the DP-2 write loop
 	
 	
 	
 	
 	
-	// Initialize random number seed
-	srandom(time(NULL));
+	
 	
 	
 	return 0;
@@ -37,7 +41,7 @@ int main(int argc, const char* argv[]) {
 
 
 
-// Function that details the DP-2 program loop.
+// Function that details the DP-2 write loop.
 	void DP2_loop() {
 		
 	}
