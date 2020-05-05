@@ -28,7 +28,7 @@ DESCRIPTION:
 #include <stdlib.h>
 #include <unistd.h>
 
-
+#include "../src/randomchar.c"
 
 
 // Definition of shared memory struct.  Common across all programs.
