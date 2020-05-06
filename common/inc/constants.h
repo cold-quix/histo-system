@@ -22,7 +22,9 @@ DESCRIPTION:
 #define FORK_FAILURE		-1
 #define SEMAPHORE_FAILURE	-1
 #define SEMAPHORE_SUCCESS	0
-#define DP1_WRITE_LIMIT		20 
+#define DP1_WRITE_LIMIT		20
+#define SIGINT_FLAG_DOWN	0
+#define SIGINT_FLAG_UP		1
 
 
 // Include statments for all programs
@@ -42,6 +44,8 @@ typedef struct tagSHAREDBUFFER {
 	int readPosition;
 	int writePosition;
 	char SHM_buffer[SHM_SIZE]; //256 characters
+	// "Global" variable that only signals will write to.
+	int signalFlag
 } SHAREDBUFFER;
 
 

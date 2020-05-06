@@ -69,8 +69,9 @@ int main() {
 	for (int i = 0; i < SHM_SIZE; i++) {
 		buffer_pointer->SHM_buffer[i] = 0;
 	}
-	buffer_pointer->readPosition = SHM_START; // 0
-	buffer_pointer->writePosition = SHM_WRITE_START; // 1
+	buffer_pointer->readPosition = SHM_START;			// 0
+	buffer_pointer->writePosition = SHM_WRITE_START;	// 1
+	buffer_pointer->signalFlag = SIGINT_FLAG_DOWN;		// 0
 	
 	/*
 	==============
