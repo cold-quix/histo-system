@@ -9,9 +9,9 @@ DESCRIPTION:
 
 // Include statements
 #include <sys/sem.h>
-#include "../inc/prototypes.h"
 #include "../../common/inc/constants.h"
 #include "../../common/inc/semaphores.h"
+#include "../inc/prototypes.h"
 
 // Main
 int main() {
@@ -69,8 +69,8 @@ int main() {
 	for (int i = 0; i < SHM_SIZE; i++) {
 		buffer_pointer->SHM_buffer[i] = 0;
 	}
-	buffer_pointer->readPosition = 0;
-	buffer_pointer->writePosition = 0;
+	buffer_pointer->readPosition = SHM_START; // 0
+	buffer_pointer->writePosition = SHM_WRITE_START; // 1
 	
 	/*
 	==============
@@ -139,8 +139,8 @@ int main() {
 	// Determine whether this is the DP-1 (parent) or DP-2 (child)
 	else if (forkReturn == IS_CHILD) {
 		#ifdef DEBUG
-		printf("[CHILD]: DP-2 process started successfully.\n");
-		printf("[CHILD]: DP-2's PID is %ld and my parent's PID is %ld\n", (long)getpid(), (long)parentPID);
+		printf("[DP-2]: DP-2 process started successfully.\n");
+		printf("[DP-2]: DP-2's PID is %ld and my parent's PID is %ld\n", (long)getpid(), (long)parentPID);
 		#endif
 		// If DP-2, do that behaviour
 		// Exec into the DP-2 program to handle it
@@ -153,35 +153,86 @@ int main() {
 	// The program will only make it here if it is the parent - no need for an else-if block
 	// In the parent (DP-1), the return value will be the parent's PID, and not 0
 	#ifdef DEBUG
-	printf("[PARENT]: DP-1 process continuing as normal.\n");
-	printf("[PARENT]: DP-1's PID is %ld .\n", (long)parentPID);
+	printf("[DP-1]: DP-1 process continuing as normal.\n");
+	printf("[DP-1]: DP-1's PID is %ld .\n", (long)parentPID);
 	#endif
 	
+	/*
+	==============
+	     LOOP
+	==============
+	*/
 	// Initialize random number seed
 	srandom(time(NULL));
+		
+	// Loop infinitely until the process is interrupted.
+	while (1) {
+		DP1_loop(semID, buffer_pointer);
+	}
 	
-	
-	
-	exit(0);
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	return 0;
 }
 
 
-	// Function that details the DP-1 write loop.
-	void DP1_loop() {
-		
+// Function that details the DP-1 write loop.
+// Called within an infinite loop in main().
+void DP1_loop(int semID, SHAREDBUFFER* buffer_pointer) {
+	#ifdef DEBUG
+	printf("[DP-1]: DP-1 beginning write operation.\n");
+	#endif
+	// Int to hold return value from semaphore access.
+	int semReturn;
+	
+	// Acquire/decrement semaphore so we can write to circular buffer.
+	semReturn = semop (semID, &acquire_operation, 1);
+	if (semReturn == SEMAPHORE_FAILURE) {
+		#ifdef DEBUG
+		printf("[DP-1]: DP-1 cannot access critical region.  Waiting for next loop.\n");
+		#endif
+		// This is unlikely to happen, which is why it's okay to skip it.
 	}
+	// If we can write, then write 20 characters at random.
+	else if (semReturn == SEMAPHORE_SUCCESS) {
+		#ifdef DEBUG
+		printf("[DP-1]: DP-1 has semaphore access to critical region.  Beginning 20-character write.\n");
+		#endif
+		for (int writeCount = 0; writeCount < DP1_WRITE_LIMIT; writeCount++) {
+			// If writePosition would go past the end, wrap it around to the start.
+			if (buffer_pointer->writePosition > SHM_END) {
+				#ifdef DEBUG
+				printf("[DP-1]: Wrapping from end to start of circular buffer.\n");
+				#endif
+				buffer_pointer->writePosition = SHM_START;
+			}
+			// If writePosition would write into readPosition, stop the writing and 
+			// let the reader get further ahead.		
+			if (buffer_pointer->writePosition == buffer_pointer->readPosition) {
+				#ifdef DEBUG
+				printf("[DP-1]: Error - Write index and read index are equal, so buffer is full.  Aborting write operation.\n");
+				#endif
+				break;
+			}
+			else {
+				char randChar = randomAT();
+				#ifdef DEBUG
+				printf("[DP-1]: Writing character %c at index %d.\n", randChar, buffer_pointer->writePosition);
+				#endif
+				// If all is well, actually write random character value to shared memory buffer.			
+				buffer_pointer->SHM_buffer[buffer_pointer->writePosition] = randChar;
+				buffer_pointer->writePosition++; // Increment the writePosition if it actually wrote something
+			}
+		}
+		
+		#ifdef DEBUG
+		printf("[DP-1]: DP-1 exiting write operation.  Releasing semaphore and sleeping for 2 seconds.\n");
+		#endif
+		// Release/increment semaphore so DP-2 can write to circular buffer.
+		semReturn = semop (semID, &release_operation, 1);
+		// Wait for 2 seconds.
+		sleep(2);
+	}
+}
 
 
 

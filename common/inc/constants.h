@@ -14,12 +14,16 @@ DESCRIPTION:
 
 // Constants used by all programs
 #define SHM_START			0
+#define SHM_WRITE_START		1
 #define SHM_END				255
 #define SHM_SIZE			256
 #define SHM_INVALID			-1
 #define IS_CHILD	 		0
 #define FORK_FAILURE		-1
 #define SEMAPHORE_FAILURE	-1
+#define SEMAPHORE_SUCCESS	0
+#define DP1_WRITE_LIMIT		20 
+
 
 // Include statments for all programs
 #include <stdio.h>

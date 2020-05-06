@@ -15,7 +15,7 @@ DESCRIPTION:
 
 int main(int argc, const char* argv[]) {
 	#ifdef DEBUG
-	printf("Hello world.  I am being run as a child process from DP-1 forking and exec-ing into DP-2.\n");
+	printf("[DP-2]: Hello world.  I am being run as a child process from DP-1 forking and exec-ing into DP-2.\n");
 	#endif
 	// The only command line argument given is the shmID - convert it to an int and use it to reattach
 	
