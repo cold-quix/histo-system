@@ -7,6 +7,10 @@ DESCRIPTION:
 	is launched by the DP-2 program and reads data from a circular memory 
 	buffer while printing a histogram to the screen depending on the amount 
 	and type of data it has read.
+	
+	=====
+	ADD LEGEND FOR HISTOGRAM EITHER HERE OR IN printHistogram().
+	=====
 */
 
 #include <sys/sem.h>
@@ -26,6 +30,7 @@ void SIGINTHandler(int signal_number) {
 	#endif
 	// Flip global switch.
 	signalFlagINT = SIGNAL_FLAG_UP; // 1
+	exit(0);
 	// Reinstall.
 	signal(signal_number, SIGINTHandler);
 }
@@ -97,41 +102,26 @@ int main(int argc, char* argv[]) {
 	     LOOP
 	==============
 	*/
-	// Set up array to hold a count of each number of characters.
+	// Set up arrays to hold a count of each number of characters, and reference values 
+	// for each character.
 	int charCount[DC_ARRAY_LENGTH] = {}; // 19
+	char arrayASCII[DC_ARRAY_LENGTH] = {
+		'A', 'B', 'C', 'D', 'E', 
+		'F', 'G', 'H', 'I', 'J', 
+		'K', 'L', 'M', 'O', 'P', 
+		'Q', 'R', 'S', 'T',
+	};
+		
+		
 	// Enter main reading loop.
 	// Loop infinitely.
 	while (1) {
-		
-		
-		// If the program received a SIGINT signal, ignore these delays.
-		if (signalFlagINT == SIGNAL_FLAG_DOWN) {
-			// The program reads every 2 seconds, then writes every 5 read-loops (every 10 seconds).
-			for (int countToFive = 0; countToFive < MULTIPLE_10_SEC; countToFive++) {
-				// Wait for 2 seconds until a signal is sent.
-				alarm(2);
-				pause();
-				// Read characters from the shared memory buffer into charCount[]
-				
-			}
-			
-			
-		}
-		
-		
-		
-		
-		
-		
-		// READING REQUIRES SEMAPHORE ACCESS
-		// Every 2 seconds, get the index just before the write index [make sure to wrap properly], 
-		// then read up until that index.  Then sleep [set SIGALRM flag back to 0].
-		
+		DC_loop(shmID, DP1_PID, DP2_PID, semID, buffer_pointer, charCount, arrayASCII);
 		
 		
 		
 		// Every 10 seconds, display the histogram based on what data has been collected.
-			// see PDF assignment sheet for full details.  should comment a legend somewhere.
+			
 	
 		
 	
@@ -158,10 +148,93 @@ int main(int argc, char* argv[]) {
 }
 
 
+// Put the main reading loop in a separate function because it's cleaner that way.
+void DC_loop(int shmID, int DP1_PID, int DP2_PID, int semID, 
+			 SHAREDBUFFER* buffer_pointer, int charCount[], char arrayASCII[]) {
+	// Every loop, the function pauses for 2 seconds.  Every 5 pauses is 10 seconds, so 
+	// print the histogram every 5 loops [see below].
+	int pauseCount = 0;
+	for (pauseCount; pauseCount < 5; pauseCount++) {
+		// Wait for 2 seconds using SIGALRM
+		alarm(2);
+		pause();
+		// Get/decrement semaphore.
+		int semReturn = semop(semID, &acquire_operation, 1);
+		
+		// If we can't get semaphore access, don't do anything.
+		if (semReturn == SEMAPHORE_FAILURE) {
+			#ifdef DEBUG
+			printf("[DC]: DC cannot access critical region.  Waiting for next loop.\n");
+			#endif
+			// This is unlikely to happen, which is why it's okay to skip it.
+		}
+		// If we have semaphore access
+		else if (semReturn == SEMAPHORE_SUCCESS) {
+			// Find the destination index.
+			int destPosition = getReadDestination(buffer_pointer);
+			#ifdef DEBUG
+			printf("[DC]: Beginning read operation.\n");
+			printf("[DC]: Read index is currently %d.\n", buffer_pointer->readPosition);
+			printf("[DC]: Destination index is %d, which is 1 less than the write index of %d.\n", 
+				   destPosition, buffer_pointer->writePosition);
+			#endif
+			// Iterate through shared memory until you reach the destination index.
+			for (buffer_pointer->readPosition; 
+				 
+				 
+				 
+				 
+				 
+				 buffer_pointer->readPosition != destPosition; 
+				 
+				 
+				 
+				 
+				 
+				 buffer_pointer->readPosition++) {
+				// Wrap back around if necessary
+				if (buffer_pointer->readPosition > SHM_END) {
+					#ifdef DEBUG
+					printf("[DC]: Wrapping around to start of shared buffer.\n");
+					#endif
+					buffer_pointer->readPosition = SHM_START;
+				}
+				char tempChar = buffer_pointer->SHM_buffer[buffer_pointer->readPosition];
+				#ifdef DEBUG
+				printf("[DC]: Reading character %c from shared memory index %d.\n", 
+					   tempChar, buffer_pointer->readPosition);
+				#endif
+				// for each character you read, compare it against the ASCII array
+				for (int i = 0; i < DC_ARRAY_LENGTH; i++) {
+					
+					// if the character you read matches something in the ASCII array, increment 
+					// the equivalent element in the count array
+					if (tempChar == arrayASCII[i]) {
+						charCount[i]++;
+					}
+				}
+			}
+		}
+		#ifdef DEBUG
+		printf("[DC]: Releasing/incrementing semaphore.\n");
+		#endif
+		// Release/increment semaphore.
+		semReturn = semop (semID, &release_operation, 1);
+	}
+	
+	#ifdef DEBUG
+	printf("[DC]: Printing histogram.\n");
+	#endif
+	// Print histogram.  Happens every 5 read-loops, which is about every 10 seconds.
+	// See PDF assignment sheet for full details.  should comment a legend somewhere.
+	
+	
+}
 
 
 // Takes a pointer to shared memory and returns the index which the DC should
 // read until, which is 1 behind the writePosition.
+// Putting this in a function makes it easier to account for wrapping.
 int getReadDestination(SHAREDBUFFER* buffer_pointer) {
 	int readDestination = buffer_pointer->writePosition;
 	readDestination--;
@@ -174,7 +247,40 @@ int getReadDestination(SHAREDBUFFER* buffer_pointer) {
 
 
 
-//void countSHM(SHAREDBUFFER* buffer_pointer
+
+// Read characters from shared memory.  For each character read, count it in charCount[].
+void readToCharCount(SHAREDBUFFER* buffer_pointer, int charCount[], int readDestination) {
+	for (buffer_pointer->readPosition;
+		 buffer_pointer->readPosition < readDestination;
+		 buffer_pointer->readPosition++) {
+		
+		char tempChar = buffer_pointer->SHM_buffer[buffer_pointer->readPosition];
+		// If the value is decimal 0, then it's uninitialized, so ignore it.  This will happen 
+		// only with the first character read.
+		if (tempChar != 0) {
+			
+		}
+		
+		
+		
+	}
+	
+}
+
+
+// Prints the histogram to the screen. The int array will always be ordered from A-T.
+void printHistogram(int charCount[]){
+	
+	
+	
+	
+	
+	
+}
+
+
+
+
 
 
 

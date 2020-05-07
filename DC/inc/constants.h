@@ -7,8 +7,6 @@ DESCRIPTION:
 	shared memory by DP-1 and DP-2.
 */
 
-//
-#define MULTIPLE_10_SEC		5
 
 // The indices in the array where the count of each character is stored.
 #define DC_ARRAY_LENGTH		19
