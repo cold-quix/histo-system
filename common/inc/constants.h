@@ -34,6 +34,7 @@ DESCRIPTION:
 #include <sys/shm.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "../src/randomchar.c"
 
@@ -45,7 +46,7 @@ typedef struct tagSHAREDBUFFER {
 	int writePosition;
 	char SHM_buffer[SHM_SIZE]; //256 characters
 	// "Global" variable that only signals will write to.
-	int signalFlag
+	int signalFlag;
 } SHAREDBUFFER;
 
 
