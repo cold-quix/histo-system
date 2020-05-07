@@ -45,6 +45,8 @@ typedef struct tagSHAREDBUFFER {
 	int readPosition;
 	int writePosition;
 	char SHM_buffer[SHM_SIZE]; //256 characters
+	// Semaphore ID to be used by additional processes that attach.
+	int semaphoreID;
 } SHAREDBUFFER;
 
 

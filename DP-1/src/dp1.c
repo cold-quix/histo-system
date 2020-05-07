@@ -20,9 +20,9 @@ void SIGINTHandler(int signal_number) {
 	#ifdef DEBUG
 	printf("[SIGNAL HANDLER]: Process was interrupted by SIGINT.\n");
 	#endif
-	// Flip global switch
+	// Flip global switch.
 	signalFlag = SIGINT_FLAG_UP;	
-	// Reinstall
+	// Reinstall.
 	signal(signal_number, SIGINTHandler);
 }
 
@@ -57,7 +57,7 @@ int main() {
 		exit(0);
 	}
 	
-	// If the key is valid, then use it to connect
+	// If the key is valid, then use it to allocate
 	shmID = shmget(shmkey, sizeof (SHAREDBUFFER), 0);
 	// If the shared memory ID isn't valid, then we need to allocate shared memory
 	if (shmID == SHM_INVALID) {
@@ -92,6 +92,7 @@ int main() {
 	}
 	buffer_pointer->readPosition = SHM_START;			// 0
 	buffer_pointer->writePosition = SHM_WRITE_START;	// 1
+	buffer_pointer->semaphoreID = SEMAPHORE_FAILURE;	// -1
 	
 	/*
 	==============
@@ -120,6 +121,8 @@ int main() {
 		#endif
 		exit(0);
 	}
+	// Copy semID to shared memory.
+	buffer_pointer->semaphoreID = semID;
 	
 	/*
 	==============
