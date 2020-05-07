@@ -16,13 +16,13 @@ DESCRIPTION:
 
 // Signal handle for SIGINT.
 // Must be declared here because signal handlers need to have global scope in order to do anything.
-sig_atomic_t signalFlag = SIGINT_FLAG_DOWN;
+sig_atomic_t signalFlag = SIGNAL_FLAG_DOWN;
 void SIGINTHandler(int signal_number) {
 	#ifdef DEBUG
 	printf("[SIGNAL HANDLER]: Process was interrupted by SIGINT.\n");
 	#endif
 	// Flip global switch.
-	signalFlag = SIGINT_FLAG_UP;	
+	signalFlag = SIGNAL_FLAG_UP;	
 	// Reinstall.
 	signal(signal_number, SIGINTHandler);
 }
@@ -147,7 +147,7 @@ int main(int argc, const char* argv[]) {
 		// Write data to shared memory.
 		DP2_loop(semID, buffer_pointer);
 		// Check to see if a SIGINT was sent.
-		if (signalFlag == SIGINT_FLAG_UP) {
+		if (signalFlag == SIGNAL_FLAG_UP) {
 			#ifdef DEBUG
 			printf("[DP-1]: Destroying shared memory and exiting.\n");
 			#endif

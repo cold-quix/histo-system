@@ -23,8 +23,8 @@ DESCRIPTION:
 #define SEMAPHORE_FAILURE	-1
 #define SEMAPHORE_SUCCESS	0
 #define DP1_WRITE_LIMIT		20
-#define SIGINT_FLAG_DOWN	0
-#define SIGINT_FLAG_UP		1
+#define SIGNAL_FLAG_DOWN	0
+#define SIGNAL_FLAG_UP		1
 #define DP2_WAIT_SEC		0
 #define DP2_WAIT_NSEC		50000000 // 50,000,000 nanoseconds is 1/20th of a second
 
