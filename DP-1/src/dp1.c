@@ -92,7 +92,6 @@ int main() {
 	}
 	buffer_pointer->readPosition = SHM_START;			// 0
 	buffer_pointer->writePosition = SHM_WRITE_START;	// 1
-	buffer_pointer->signalFlag = SIGINT_FLAG_DOWN;		// 0
 	
 	/*
 	==============
