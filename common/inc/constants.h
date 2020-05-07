@@ -45,8 +45,6 @@ typedef struct tagSHAREDBUFFER {
 	int readPosition;
 	int writePosition;
 	char SHM_buffer[SHM_SIZE]; //256 characters
-	// "Global" variable that only signals will write to.
-	int signalFlag;
 } SHAREDBUFFER;
 
 
