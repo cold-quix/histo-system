@@ -24,6 +24,8 @@ then
 	cd ../DP-2
 	make clean
 	
+	cd ../DC
+	make clean
 	
 else
 	echo Building HISTO-SYSTEM binaries
@@ -33,6 +35,8 @@ else
 	cd ../DP-2
 	make
 	
+	cd ../DC
+	make
 	
 fi
 echo

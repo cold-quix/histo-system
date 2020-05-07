@@ -9,9 +9,19 @@ DESCRIPTION:
 	and type of data it has read.
 */
 
+#include <sys/sem.h>
 #include "../inc/prototypes.h"
+#include "../../common/inc/constants.h"
+#include "../../common/inc/semaphores.h"
 
-int main() {
+int main(int argc, char* argv[]) {
+	#ifdef DEBUG
+	printf("[DC]: Hello world.  This is the DC program being executed from DP-2.\n");
+	printf("[DC]: Shared memory ID is - %s.\n", argv[1]);
+	printf("[DC]: DP-1 PID is - %s.\n", argv[2]);
+	printf("[DC]: DP-2 PID is - %s.\n", argv[3]);
+	#endif
+	
 	
 	return 0;
 }

@@ -247,12 +247,12 @@ void DP1_loop(int semID, SHAREDBUFFER* buffer_pointer) {
 				#endif
 				break;
 			}
+			// If all is well, actually write random character value to shared memory buffer.
 			else {
 				char randChar = randomAT();
 				#ifdef DEBUG
 				printf("[DP-1]: Writing character %c at index %d.\n", randChar, buffer_pointer->writePosition);
-				#endif
-				// If all is well, actually write random character value to shared memory buffer.			
+				#endif							
 				buffer_pointer->SHM_buffer[buffer_pointer->writePosition] = randChar;
 				buffer_pointer->writePosition++; // Increment the writePosition if it actually wrote something
 			}
@@ -261,7 +261,7 @@ void DP1_loop(int semID, SHAREDBUFFER* buffer_pointer) {
 		#ifdef DEBUG
 		printf("[DP-1]: DP-1 exiting write operation.  Releasing semaphore and sleeping for 2 seconds.\n");
 		#endif
-		// Release/increment semaphore so DP-2 can write to circular buffer.
+		// Release/increment semaphore.
 		semReturn = semop (semID, &release_operation, 1);
 		// Wait for 2 seconds.
 		sleep(2);

@@ -9,7 +9,7 @@ DESCRIPTION:
 */
 
 // Debug toggle
-#define DEBUG			0 // Value doesn't matter
+#define DEBUG				0 // Value doesn't matter
 
 
 // Constants used by all programs
@@ -25,6 +25,8 @@ DESCRIPTION:
 #define DP1_WRITE_LIMIT		20
 #define SIGINT_FLAG_DOWN	0
 #define SIGINT_FLAG_UP		1
+#define DP2_WAIT_SEC		0
+#define DP2_WAIT_NSEC		50000000 // 50,000,000 nanoseconds is 1/20th of a second
 
 
 // Include statments for all programs
