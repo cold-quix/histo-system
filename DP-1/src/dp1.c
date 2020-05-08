@@ -194,12 +194,7 @@ int main() {
 		DP1_loop(semID, buffer_pointer);
 		// Check to see if a SIGINT was sent.
 		if (signalFlag == SIGNAL_FLAG_UP) {
-			#ifdef DEBUG
-			printf("[DP-1]: Destroying shared memory and exiting.\n");
-			#endif
-			// Destroy shared memory, destroy semaphore, and exit.
-			shmctl(shmID, IPC_RMID, NULL);
-			semctl(semID, 0, IPC_RMID, 0);
+			// Nothing to clean up because DC handles that.  Just exit.
 			exit(0);
 		}
 	}

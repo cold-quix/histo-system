@@ -148,12 +148,14 @@ int main(int argc, const char* argv[]) {
 		DP2_loop(semID, buffer_pointer);
 		// Check to see if a SIGINT was sent.
 		if (signalFlag == SIGNAL_FLAG_UP) {
+			/*
 			#ifdef DEBUG
 			printf("[DP-1]: Destroying shared memory and exiting.\n");
 			#endif
 			// Destroy shared memory, destroy semaphore, and exit.
 			shmctl(shmID, IPC_RMID, NULL);
 			semctl(semID, 0, IPC_RMID, 0);
+			*/
 			exit(0);
 		}
 	}

@@ -111,26 +111,38 @@ int main(int argc, char* argv[]) {
 		'Q', 'R', 'S', 'T',
 	};
 		
-		
 	// Enter main reading loop.
 	// Loop infinitely.
 	while (1) {
+		#ifdef DEBUG
+		printf("[DC]: Beginning main loop.\n");
+		#endif
 		DC_loop(shmID, DP1_PID, DP2_PID, semID, buffer_pointer, charCount, arrayASCII);
-		// If the readPosition reaches the writePosition [should only happen when DP-1 and DP-2 are 
-		// stopped by a SIGINT signal], then:
-		if (buffer_pointer->readPosition == buffer_pointer->writePosition) {
+		
+		// If the process was sent a SIGINT signal, stop the other two processes
+		if (signalFlagINT == SIGNAL_FLAG_UP) {
+			#ifdef DEBUG
+			printf("[DC]: Received a SIGINT signal.  Time to close up shop.\n");
+			#endif
+			kill(DP1_PID, SIGINT);
+			kill(DP2_PID, SIGINT);
+			
 			// clear screen and display final histogram
 			system("clear");
 			printHistogram(charCount, arrayASCII);
 			// clean up IPC usage - nothing to do here because DP-1 cleans shared memory 
 			// and semaphores.  the DC only needs to sent DP-1 and DP-2 SIGINT signals.
-			kill(DP1_PID, SIGINT);
-			kill(DP2_PID, SIGINT);
+			#ifdef DEBUG
+			printf("[DC]: Destroying shared memory and exiting.\n");
+			#endif
+			// Destroy shared memory, destroy semaphore, and exit.
+			shmctl(shmID, IPC_RMID, NULL);
+			semctl(semID, 0, IPC_RMID, 0);
 			// display message "Shazam !!"
-			printf("Shazam !!");
+			printf("Shazam !!\n");
 			// exit
 			exit(0);
-		}			
+		}		
 	}
 	return 0;
 }
@@ -261,11 +273,6 @@ void printHistogram(int charCount[], char arrayASCII[]) {
 		// Print new line
 		printf("\n");
 	}
-	
-	
-	
-	
-	
 }
 
 
