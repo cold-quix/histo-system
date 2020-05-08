@@ -13,8 +13,18 @@ DESCRIPTION:
 #include "../../common/inc/semaphores.h"
 #include "../inc/prototypes.h"
 
-// Signal handle for SIGINT.
-// Must be declared here because signal handlers need to have global scope in order to do anything.
+/*
+NAME:		SIGINTHandler
+PARAMETERS:	int signal_number				- signal ID
+RETURN:		None
+DESC:
+	Signal handler for SIGINT.  Must be declared here because signal handlers need 
+	to have global scope to do anything.
+	
+	Sets a flag indicating the signal was received, which is checked for programmatically, 
+	then reinstalls itself.
+	
+*/
 sig_atomic_t signalFlag = SIGNAL_FLAG_DOWN;
 void SIGINTHandler(int signal_number) {
 	#ifdef DEBUG
@@ -94,6 +104,7 @@ int main() {
 	buffer_pointer->writePosition = SHM_WRITE_START;	// 1
 	buffer_pointer->semaphoreID = SEMAPHORE_FAILURE;	// -1
 	
+	
 	/*
 	==============
 	  SEMAPHORES
@@ -123,6 +134,7 @@ int main() {
 	}
 	// Copy semID to shared memory.
 	buffer_pointer->semaphoreID = semID;
+	
 	
 	/*
 	==============
@@ -181,6 +193,7 @@ int main() {
 	printf("[DP-1]: DP-1's PID is %ld .\n", (long)parentPID);
 	#endif
 	
+	
 	/*
 	==============
 	     LOOP
@@ -203,9 +216,18 @@ int main() {
 	return 0;
 }
 
-
-// Function that details the DP-1 write loop.
-// Called within an infinite loop in main().
+/*
+NAME:		DP1_loop
+PARAMETERS:	int semID 						- semaphore ID
+			SHAREDBUFFER* buffer_pointer	- pointer to shared memory
+RETURN:		None
+DESC:
+	This function is essentially a continuation of the main(), enclosed 
+	as a separate function to reduce clutter in main() itself.
+	
+	DP1_loop details the DP-1 write loop, and is called infinitely from main().
+	
+*/
 void DP1_loop(int semID, SHAREDBUFFER* buffer_pointer) {
 	#ifdef DEBUG
 	printf("[DP-1]: DP-1 beginning write operation.\n");

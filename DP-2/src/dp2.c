@@ -4,7 +4,8 @@ DATE:			2020-04-18
 CODER:			Jack Lazarski Parkinson
 DESCRIPTION:	
 	This file contains the source code for the DP-2 program.  The DP-2 program 
-	is launched by the DP-1 program before launching the DC program.
+	is launched by the DP-1 program before launching the DC program, then 
+	attaching to shared memory and beginning its infinite write loop.
 */
 
 // Include statements
@@ -14,8 +15,18 @@ DESCRIPTION:
 #include "../../common/inc/semaphores.h"
 #include "../inc/prototypes.h"
 
-// Signal handle for SIGINT.
-// Must be declared here because signal handlers need to have global scope in order to do anything.
+/*
+NAME:		SIGINTHandler
+PARAMETERS:	int signal_number				- signal ID
+RETURN:		None
+DESC:
+	Signal handler for SIGINT.  Must be declared here because signal handlers need 
+	to have global scope to do anything.
+	
+	Sets a flag indicating the signal was received, which is checked for programmatically, 
+	then reinstalls itself.
+	
+*/
 sig_atomic_t signalFlag = SIGNAL_FLAG_DOWN;
 void SIGINTHandler(int signal_number) {
 	#ifdef DEBUG
@@ -27,7 +38,7 @@ void SIGINTHandler(int signal_number) {
 	signal(signal_number, SIGINTHandler);
 }
 
-
+// Main
 int main(int argc, const char* argv[]) {
 	#ifdef DEBUG
 	printf("[DP-2]: Hello world.  I am being run as a child process from DP-1 forking and exec-ing into DP-2.\n");
@@ -60,13 +71,12 @@ int main(int argc, const char* argv[]) {
 		- shmID
 		- DP-1 PID
 		- DP-2 PID
-		
+	Which it will use to clean up when it is sent a SIGINT signal.
 	*/
 	// shmID was already stored above.
 	int DP1_PID = getppid();
 	int DP2_PID = getpid();
-	
-	
+		
 	#ifdef DEBUG
 	printf("[DP-2]: Launching DC program.\n");
 	#endif
@@ -159,23 +169,25 @@ int main(int argc, const char* argv[]) {
 			exit(0);
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
 	return 0;
 }
 
 
 
-
-// Function that details the DP-2 write loop.
-// Called within an infinite loop in main().
-// Similar to DP-1 write loop, but only writes one character at a time instead 
-// of up to 20.
+/*
+NAME:		DP2_loop
+PARAMETERS:	int semID 						- semaphore ID
+			SHAREDBUFFER* buffer_pointer	- pointer to shared memory
+RETURN:		None
+DESC:
+	This function is essentially a continuation of the main(), enclosed 
+	as a separate function to reduce clutter in main() itself.
+	
+	DP2_loop details the DP-2 write loop, and is called infinitely from main().  
+	Unlike the DP1's write loop, the DP-2 writes one character every 1/20th of a 
+	second instead.
+	
+*/
 	void DP2_loop(int semID, SHAREDBUFFER* buffer_pointer) {
 		#ifdef DEBUG
 		printf("[DP-2]: DP-2 beginning write operation.\n");

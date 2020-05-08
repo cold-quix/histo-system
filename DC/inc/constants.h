@@ -1,18 +1,23 @@
 /*
 NAME:			constants.h
-DATE:			2020-04-18
+DATE:			2020-05-01
 CODER:			Jack Lazarski Parkinson
 DESCRIPTION:	
 	Constants used by the DC program to track characters written into 
 	shared memory by DP-1 and DP-2.
+	
+	Not all of these constants are used, but I have decided to keep them 
+	here because they may be useful for future code extensions and because 
+	I do not want to break anything.
 */
 
-// Histogram printing strings
+// Histogram printing strings.
 #define HISTO_1				"[%c]-"
 #define HISTO_2				"%03d "
 
 // The indices in the array where the count of each character is stored.
 #define DC_ARRAY_LENGTH		19
+
 #define DC_INDEX_A			0
 #define DC_INDEX_C			1
 #define DC_INDEX_D			2

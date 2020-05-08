@@ -1,6 +1,6 @@
 /*
 NAME:			constants.h
-DATE:			2020-04-18
+DATE:			2020-05-01
 CODER:			Jack Lazarski Parkinson
 DESCRIPTION:	
 	This file contains global constants used in the HISTO-SYSTEM system

@@ -12,7 +12,5 @@ DESCRIPTION:
 // root/common/src/randomchar.c
 char randomAT();
 
-// root/common/src/sharedmemory.c
-
 
 

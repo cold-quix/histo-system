@@ -8,21 +8,29 @@ DESCRIPTION:
 	buffer while printing a histogram to the screen depending on the amount 
 	and type of data it has read.
 	
-	=====
-	ADD LEGEND FOR HISTOGRAM EITHER HERE OR IN printHistogram().
-	=====
+	The legend for the histogram it creates can be found below in 
+	printHistogram().
 */
 
+// Includ estatements
 #include <sys/sem.h>
 #include "../../common/inc/constants.h"
 #include "../../common/inc/semaphores.h"
 #include "../inc/prototypes.h"
 #include "../inc/constants.h"
 
-
-// Signal handler for SIGINT
-	// Send SIGINT signals to DP-1 and DP-2.
-	// Do NOT terminate DC program.
+/*
+NAME:		SIGINTHandler
+PARAMETERS:	int signal_number				- signal ID
+RETURN:		None
+DESC:
+	Signal handler for SIGINT.  Must be declared here because signal handlers need 
+	to have global scope to do anything.
+	
+	Sets a flag indicating the signal was received, which is checked for programmatically, 
+	then reinstalls itself.
+	
+*/
 sig_atomic_t signalFlagINT = SIGNAL_FLAG_DOWN; // 0
 void SIGINTHandler(int signal_number) {
 	#ifdef DEBUG
@@ -34,8 +42,18 @@ void SIGINTHandler(int signal_number) {
 	signal(signal_number, SIGINTHandler);
 }
 
-// Signal handler for SIGALRM
-	// Set an alarm flag that enables the program to break out of a wait-loop.
+/*
+NAME:		SIGALRMHandler
+PARAMETERS:	int signal_number				- signal ID
+RETURN:		None
+DESC:
+	Signal handler for SIGALRM.  Must be declared here because signal handlers need 
+	to have global scope to do anything.
+	
+	Sets a flag indicating the signal was received, which is checked for programmatically, 
+	then reinstalls itself.
+	
+*/
 sig_atomic_t signalFlagALRM = SIGNAL_FLAG_DOWN; // 0
 void SIGALRMHandler(int signal_number) {
 	#ifdef DEBUG
@@ -47,6 +65,7 @@ void SIGALRMHandler(int signal_number) {
 	signal(signal_number, SIGALRMHandler);
 }
 
+// Main
 int main(int argc, char* argv[]) {
 	#ifdef DEBUG
 	printf("[DC]: Hello world.  This is the DC program being executed from DP-2.\n");
@@ -58,6 +77,7 @@ int main(int argc, char* argv[]) {
 	int shmID = strtol(argv[1], NULL, 10);
 	int DP1_PID = strtol(argv[2], NULL, 10);
 	int DP2_PID = strtol(argv[3], NULL, 10);
+	
 	
 	/*
 	=================
@@ -110,7 +130,6 @@ int main(int argc, char* argv[]) {
 		'K', 'L', 'M', 'O', 'P', 
 		'Q', 'R', 'S', 'T',
 	};
-		
 	// Enter main reading loop.
 	// Loop infinitely.
 	while (1) {
@@ -148,6 +167,27 @@ int main(int argc, char* argv[]) {
 }
 
 
+/*
+NAME:		DC_loop
+PARAMETERS:	int shmID						- shared memory ID
+			int DP1_PID						- DP1 process ID
+			int DP2_PID						- DP2 process ID
+			SHAREDBUFFER* buffer_pointer	- pointer to shared memory
+			int charCount					- array that counts characters
+											  in shared memory buffer
+			char arrayASCII					- array with char values to 
+											  compare against
+RETURN:		None
+DESC:
+	The read loop for the DC program.  Like the "_loop" functions in dc1.c and dc2.c, 
+	this is essentially an extension of main(), which it was passed so many parameters.
+	
+	The general operation of the read loop is:
+		- pause() for 2 seconds
+		- read up to just before the write index
+		- after doing this five times, display a histogram
+	
+*/
 // Put the main reading loop in a separate function because it's cleaner that way.
 void DC_loop(int shmID, int DP1_PID, int DP2_PID, int semID, 
 			 SHAREDBUFFER* buffer_pointer, int charCount[], char arrayASCII[]) {
@@ -222,9 +262,15 @@ void DC_loop(int shmID, int DP1_PID, int DP2_PID, int semID,
 }
 
 
-// Takes a pointer to shared memory and returns the index which the DC shoulds
-// read until, which is 1 behind the writePosition.
-// Putting this in a function makes it easier to account for wrapping.
+/*
+NAME:		getReadDestination
+PARAMETERS:	SHAREDBUFFER* buffer_pointer	- shared memory ID
+RETURN:		int readDestination
+DESC:
+	Takes a pointer to shared memory and returns the index which the DC shoulds 
+	read until, which is 1 behind the writePosition.  Putting this in a function 
+	makes it easier to account for wrapping.
+*/
 int getReadDestination(SHAREDBUFFER* buffer_pointer) {
 	int readDestination = buffer_pointer->writePosition;
 	readDestination--;
@@ -236,15 +282,21 @@ int getReadDestination(SHAREDBUFFER* buffer_pointer) {
 }
 
 
-// Prints the histogram to the screen. The int array parameter will always be ordered from A-T.
-// Symbols:
-//		"-": 1
-//		"+": 10
-//		"*": 100
-// Format:
-//		[CHAR]-### [symbols]
-// Example:
-//		[A]-012 +-
+/*
+NAME:		printHistogram
+PARAMETERS:	SHAREDBUFFER* buffer_pointer	- shared memory ID
+RETURN:		int readDestination
+DESC:
+	Prints the histogram to the screen. The int array parameter will always be ordered from A-T.
+	Symbols:
+		"-": 1
+		"+": 10
+		"*": 100
+	Format:
+		[CHAR]-### [symbols]
+	Example:
+		[A]-012 +-
+*/
 void printHistogram(int charCount[], char arrayASCII[]) {
 	// Clear the screen.
 	system("clear");
