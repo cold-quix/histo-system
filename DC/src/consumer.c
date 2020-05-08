@@ -30,7 +30,6 @@ void SIGINTHandler(int signal_number) {
 	#endif
 	// Flip global switch.
 	signalFlagINT = SIGNAL_FLAG_UP; // 1
-	exit(0);
 	// Reinstall.
 	signal(signal_number, SIGINTHandler);
 }
@@ -117,33 +116,22 @@ int main(int argc, char* argv[]) {
 	// Loop infinitely.
 	while (1) {
 		DC_loop(shmID, DP1_PID, DP2_PID, semID, buffer_pointer, charCount, arrayASCII);
-		
-		
-		
-		// Every 10 seconds, display the histogram based on what data has been collected.
-			
-	
-		
-	
 		// If the readPosition reaches the writePosition [should only happen when DP-1 and DP-2 are 
 		// stopped by a SIGINT signal], then:
+		if (buffer_pointer->readPosition == buffer_pointer->writePosition) {
 			// clear screen and display final histogram
-			// clean up IPC usage
+			system("clear");
+			printHistogram(charCount, arrayASCII);
+			// clean up IPC usage - nothing to do here because DP-1 cleans shared memory 
+			// and semaphores.  the DC only needs to sent DP-1 and DP-2 SIGINT signals.
+			kill(DP1_PID, SIGINT);
+			kill(DP2_PID, SIGINT);
 			// display message "Shazam !!"
+			printf("Shazam !!");
 			// exit
+			exit(0);
+		}			
 	}
-		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	return 0;
 }
 
@@ -180,17 +168,7 @@ void DC_loop(int shmID, int DP1_PID, int DP2_PID, int semID,
 			#endif
 			// Iterate through shared memory until you reach the destination index.
 			for (buffer_pointer->readPosition; 
-				 
-				 
-				 
-				 
-				 
 				 buffer_pointer->readPosition != destPosition; 
-				 
-				 
-				 
-				 
-				 
 				 buffer_pointer->readPosition++) {
 				// Wrap back around if necessary
 				if (buffer_pointer->readPosition > SHM_END) {
@@ -227,12 +205,12 @@ void DC_loop(int shmID, int DP1_PID, int DP2_PID, int semID,
 	#endif
 	// Print histogram.  Happens every 5 read-loops, which is about every 10 seconds.
 	// See PDF assignment sheet for full details.  should comment a legend somewhere.
-	
+	printHistogram(charCount, arrayASCII);
 	
 }
 
 
-// Takes a pointer to shared memory and returns the index which the DC should
+// Takes a pointer to shared memory and returns the index which the DC shoulds
 // read until, which is 1 behind the writePosition.
 // Putting this in a function makes it easier to account for wrapping.
 int getReadDestination(SHAREDBUFFER* buffer_pointer) {
@@ -246,31 +224,43 @@ int getReadDestination(SHAREDBUFFER* buffer_pointer) {
 }
 
 
-
-
-// Read characters from shared memory.  For each character read, count it in charCount[].
-void readToCharCount(SHAREDBUFFER* buffer_pointer, int charCount[], int readDestination) {
-	for (buffer_pointer->readPosition;
-		 buffer_pointer->readPosition < readDestination;
-		 buffer_pointer->readPosition++) {
+// Prints the histogram to the screen. The int array parameter will always be ordered from A-T.
+// Symbols:
+//		"-": 1
+//		"+": 10
+//		"*": 100
+// Format:
+//		[CHAR]-### [symbols]
+// Example:
+//		[A]-012 +-
+void printHistogram(int charCount[], char arrayASCII[]) {
+	// Clear the screen.
+	system("clear");
+	// For each character, print its histogram row, then a new line.
+	for (int i = 0; i < DC_ARRAY_LENGTH; i++) {
+		// Determine the histogram string and store it
+		int hundreds = (charCount[i] / 100);			// Number of "*"
+		int tens = (charCount[i] % 100) / 10;			// Number of "+"
+		int ones = ( (charCount[i] % 100) % 10);		// Number of "-"
 		
-		char tempChar = buffer_pointer->SHM_buffer[buffer_pointer->readPosition];
-		// If the value is decimal 0, then it's uninitialized, so ignore it.  This will happen 
-		// only with the first character read.
-		if (tempChar != 0) {
-			
+		// Print the character
+		printf(HISTO_1, arrayASCII[i]);
+		// Print the number
+		printf(HISTO_2, charCount[i]);
+		// Print the symbol string
+		for (int count = 0; count < hundreds; count++) {
+			printf("*");
+		}
+		for (int count = 0; count < tens; count++) {
+			printf("+");
+		}
+		for (int count = 0; count < ones; count++) {
+			printf("-");
 		}
 		
-		
-		
+		// Print new line
+		printf("\n");
 	}
-	
-}
-
-
-// Prints the histogram to the screen. The int array will always be ordered from A-T.
-void printHistogram(int charCount[]){
-	
 	
 	
 	

@@ -9,7 +9,7 @@ DESCRIPTION:
 */
 
 // Debug toggle
-#define DEBUG				0 // Value doesn't matter
+//#define DEBUG				
 
 
 // Constants used by all programs

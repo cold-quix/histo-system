@@ -13,7 +13,7 @@ DESCRIPTION:
 // Return the corresponding character: A = 0, T = 19
 char randomAT() {
 	char randChar;
-	int range = 19;
+	int range = 20;
 	
 	
 	randChar = random() % range;

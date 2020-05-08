@@ -7,6 +7,9 @@ DESCRIPTION:
 	shared memory by DP-1 and DP-2.
 */
 
+// Histogram printing strings
+#define HISTO_1				"[%c]-"
+#define HISTO_2				"%03d "
 
 // The indices in the array where the count of each character is stored.
 #define DC_ARRAY_LENGTH		19
